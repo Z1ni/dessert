@@ -1,7 +1,3 @@
-import nltk
-import requests
-import wikitextparser as wtp
-
 from dessert.wiki import WikiSource, WikiParser
 from dessert.model import Ingredient
 from dessert.nlp import IngredientProcessor
@@ -46,5 +42,4 @@ if __name__ == "__main__":
           % (parsed_count,
              parsed_count,
              total_desserts,
-             (float(parsed_count) / float(total_desserts) * 100.0)
-             ))
+             (float(parsed_count) / float(total_desserts) * 100.0)))

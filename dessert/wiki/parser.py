@@ -37,8 +37,7 @@ class State(Enum):
     in_template = 7
     possible_template_end = 8
     template_ended = 9
-    # possible_and = 10
-    # possible_or = 11
+    possible_split = 10
 
 
 class WikiParser:
@@ -65,6 +64,9 @@ class WikiParser:
         l.append(Ingredient(name, sub))
         return l
 
+    def _in_split_list(self, s: str) -> bool:
+        return s in [" /", " or", " and", " and/or"]
+
     def _parse_wikitext_ingredients_list(self, wt, idx=0, open_lists=0):
         # Change <br> tags to commas to split after them
         remove_list = ["<br>", "<BR>", "<br />", "<BR />", "<br/>", "</BR>"]
@@ -87,7 +89,9 @@ class WikiParser:
         temp = ""
         link_temp = ""
         template_temp = ""
+        split_temp = ""
         sublist = []
+        split_now = False
         while idx < len(wt):
             c = wt[idx]
             if c == "[":
@@ -122,15 +126,48 @@ class WikiParser:
                         temp += template_temp
                         template_temp = ""
 
-            if c == "," and state == State.normal:
+            if state != State.possible_split and len(split_temp) > 0:
+                temp += split_temp
+                split_temp = ""
+
+            if c == " " and state == State.possible_split:
+                # Check split temp
+                if self._in_split_list(split_temp):
+                    # Split here
+                    split_now = True
+                else:
+                    # No need to split, add to temp and start a new possible split (since e.g. "foo or bar" wouldn't be parsed otherwise)
+                    temp += split_temp
+                    split_temp = c
+                    idx += 1
+                    continue
+            elif c == " " and state == State.normal:
+                state = State.possible_split
+                split_temp = c
+                idx += 1
+                continue
+
+            # Split on "," even if we are possibly in a "split" (e.g. "and", "or")
+            if split_now or (c == "," and (state == State.normal or state == State.possible_split)):
+                state = State.normal
+                if len(split_temp) > 0:
+                    # Check if we need to ignore the contents of split_temp
+                    if not self._in_split_list(split_temp):
+                        # No need to ignore, add to temp
+                        temp += split_temp
+                split_temp = ""
                 ingredients = self._add_ingredient(ingredients, temp, sublist)
                 temp = ""
                 sublist = []
                 idx += 1
+                split_now = False
                 continue
 
-            if c == "(" and state == State.normal:
+            if c == "(" and (state == State.normal or state == State.possible_split):
                 # Sublist of ingredients
+                state = State.normal
+                temp += split_temp
+                split_temp = ""
                 sublist, idx = self._parse_wikitext_ingredients_list(
                     wt, idx+1, open_lists+1)
                 idx += 1
@@ -150,6 +187,8 @@ class WikiParser:
                 link_temp += c
             elif state in [State.possible_template, State.in_template, State.possible_template_end, State.template_ended]:
                 template_temp += c
+            elif state == State.possible_split:
+                split_temp += c
             else:
                 temp += c
             idx += 1
@@ -168,6 +207,8 @@ class WikiParser:
             if state in [State.link_ended, State.template_ended]:
                 state = State.normal
 
+        if len(split_temp) > 0:
+            temp += split_temp
         if len(temp) > 0:
             ingredients = self._add_ingredient(ingredients, temp, sublist)
 

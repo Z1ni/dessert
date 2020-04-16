@@ -11,11 +11,7 @@ class IngredientProcessor:
     def _normalize(self, ingredient_name: str) -> str:
         # TODO
         # Use a stemmer and/or dictionary
-        # TODO: Remove stop words (e.g. ".")
-        # Remove "and", "and/or" prefix left by the splitting
-        # TODO: Move the prefix removing to the split stage, see WikiParser._parse_wikitext_ingredients_list in parser.py
-        ingredient_name = re.sub(
-            r"^and(/or)?\s", "", ingredient_name, flags=re.IGNORECASE)
+        # TODO: Remove stop words (e.g. r"\.", r"^sometimes\s")
         return ingredient_name
 
     def normalize_ingredients(self, ingredients: [Ingredient]) -> [Ingredient]:
