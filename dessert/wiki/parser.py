@@ -69,7 +69,7 @@ class WikiParser:
 
     def _parse_wikitext_ingredients_list(self, wt, idx=0, open_lists=0):
         # Change <br> tags to commas to split after them
-        remove_list = ["<br>", "<BR>", "<br />", "<BR />", "<br/>", "</BR>"]
+        remove_list = ["<br>", "<BR>", "<br />", "<BR />", "<br/>", "</BR>", "\n"]
         for entry in remove_list:
             wt = wt.replace(entry, ",")
 
