@@ -1,8 +1,9 @@
 from enum import Enum
 from typing import Optional
 import wikitextparser as wtp
-from bs4 import BeautifulSoup as BS
 from dessert.model import Ingredient
+from bs4 import BeautifulSoup
+
 
 # TODO: Logging
 
@@ -75,7 +76,7 @@ class WikiParser:
 
         # Remove other tags (<ref> etc.) before additional parsing
         wt_orig = wt
-        soup = BS(wt_orig, "html.parser")
+        soup = BeautifulSoup(wt_orig, "html.parser")
         wt = "".join(soup.findAll(text=True, recursive=False)) or wt_orig
 
         # Remove formatting (naively)

@@ -1,7 +1,42 @@
-from dessert.wiki import WikiSource, WikiParser
-from dessert.model import Ingredient
-from dessert.nlp import IngredientProcessor
+import nltk
+from nltk import ngrams
 
+from dessert.nlp import IngredientProcessor
+from dessert.wiki import WikiSource, WikiParser
+
+lemma = nltk.wordnet.WordNetLemmatizer()
+
+def sim(word1, word2):
+    w1 = set(["".join(i) for i in ngrams(word1, 2)])
+    w2 = set(["".join(i) for i in ngrams(word2, 2)])
+    jaettava = w1.intersection(w2)
+    jakaja = w1.union(w2)
+    return len(jaettava) / len(jakaja)
+
+# mandatoryIngredients, recipe must include all these ingredients to be returned
+def filterDessertByMandatoryIngredients(mandatoryIngredients, ingredients):
+    if len(mandatoryIngredients) == 0:
+        return True
+    # haha nested for loop go brrrrrr
+    for ingredient in ingredients:
+        for mandatoryIngredient in mandatoryIngredients:
+            # try using the ingredient name directly
+            if sim(lemma.lemmatize(ingredient.name.lower()), mandatoryIngredient.lower()) > 0.5:
+                mandatoryIngredients.remove(mandatoryIngredient)
+                if (len(mandatoryIngredients) == 0):
+                    return True
+            else:
+                # check ingredient's ingredients
+                # Remove any non str-chars and tokenize word
+                for partIngredient in ingredient.ingredients:
+                    if sim(lemma.lemmatize(partIngredient.name.lower()), mandatoryIngredient.lower()) > 0.5:
+                        mandatoryIngredients.remove(mandatoryIngredient)
+                        if (len(mandatoryIngredients) == 0):
+                            return True
+    return False
+
+def getMandatoryIngredients():
+    return ["milk", 'almond']
 
 if __name__ == "__main__":
     ws = WikiSource()
@@ -31,10 +66,11 @@ if __name__ == "__main__":
             if len(ingredients) > 0:
                 # Try to process ingredients (normalize names)
                 normalized_ingredients = ip.normalize_ingredients(ingredients)
-                f.write("\n")
-                f.write("%s:\n" % title)
-                for i in normalized_ingredients:
-                    f.write("- %s\n" % i.name)
+                if filterDessertByMandatoryIngredients(getMandatoryIngredients(), normalized_ingredients):
+                    f.write("\n")
+                    f.write("%s:\n" % title)
+                    for i in normalized_ingredients:
+                        f.write("- %s\n" % i.name)
                 parsed_count += 1
     print()
 
