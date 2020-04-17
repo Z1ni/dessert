@@ -13,6 +13,7 @@ class IngredientProcessor:
         # Initialize NLTK resources
         nltk.download("stopwords")
         nltk.download("punkt")
+        nltk.download("wordnet")
         # Extend NLTK stopwords
         self._stopwords = stopwords.words("english")
         self._stopwords.extend([
