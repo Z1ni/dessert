@@ -16,6 +16,7 @@ Steps 2-4 are optional if you don't want to use virtualenv.
 4. Activate virtualenv
 
    Windows: Run `.\venv\Scripts\activate` in the project folder
+
    Linux/macOS: Run `./venv/bin/activate` in the project folder
 5. Install dependencies
 
