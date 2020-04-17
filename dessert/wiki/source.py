@@ -151,7 +151,7 @@ class WikiSource:
         dessert_pages = set()
         for letter_list in lists:
             for item in letter_list.items:
-                # Parse page WikiLink
+                # Parse page WikiLinks
                 link = wtp.parse(item).wikilinks[0]
                 # Add the page title to the title list
                 dessert_pages.add(link.title)

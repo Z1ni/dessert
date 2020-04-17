@@ -6,6 +6,7 @@ from dessert.wiki import WikiSource, WikiParser
 
 lemma = nltk.wordnet.WordNetLemmatizer()
 
+
 def sim(word1, word2):
     w1 = set(["".join(i) for i in ngrams(word1, 2)])
     w2 = set(["".join(i) for i in ngrams(word2, 2)])
@@ -13,8 +14,9 @@ def sim(word1, word2):
     jakaja = w1.union(w2)
     return len(jaettava) / len(jakaja)
 
-# mandatoryIngredients, recipe must include all these ingredients to be returned
+
 def filterDessertByMandatoryIngredients(mandatoryIngredients, ingredients):
+    # mandatoryIngredients, recipe must include all these ingredients to be returned
     if len(mandatoryIngredients) == 0:
         return True
     # haha nested for loop go brrrrrr
@@ -35,8 +37,10 @@ def filterDessertByMandatoryIngredients(mandatoryIngredients, ingredients):
                             return True
     return False
 
+
 def getMandatoryIngredients():
     return ["milk", 'almond']
+
 
 if __name__ == "__main__":
     ws = WikiSource()
@@ -66,6 +70,7 @@ if __name__ == "__main__":
             if len(ingredients) > 0:
                 # Try to process ingredients (normalize names)
                 normalized_ingredients = ip.normalize_ingredients(ingredients)
+                # Comment this "if" and unindent the rows below it by four spaces to include all ingredients to the "list.txt"
                 if filterDessertByMandatoryIngredients(getMandatoryIngredients(), normalized_ingredients):
                     f.write("\n")
                     f.write("%s:\n" % title)
