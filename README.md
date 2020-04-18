@@ -15,7 +15,7 @@ Steps 3-5 are optional if you don't want to use virtualenv.
 3. Install virtualenv (if not installed)
 
    1. Open PowerShell / terminal (on Windows search for / press Win+R and type `powershell`)
-   2. Run `pip3 install virtualenv`
+   2. Run `py -m pip install virtualenv` (Windows) or `pip3 install virtualenv` (Linux/macOS)
 4. Create virtualenv
 
    1. Open PowerShell / terminal
